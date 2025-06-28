@@ -1,226 +1,119 @@
-[AWS Automated language translation pipeline]{.underline}
+**PROJECT OVERVIEW**
 
-### **[Project Overview]{.underline}**
-
-*This project implements a **serverless language translation pipeline**
-using AWS. The goal is to **automatically translate uploaded text
-files** from an input S3 bucket and **store the translated output** in a
-separate output bucket using Amazon Translate and AWS Lambda.*
-
-1.  
-
-Workflow diagram
-
-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--+
-
-\| User Uploads \|
-
-+\-\-\-\-\-\--+\-\-\-\-\-\-\--+
-
-\|
-
-v
-
-+\-\-\-\-\-\--+\-\-\-\-\-\-\--+ Triggers
-
-\| S3 Input Bucket \|\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--+
-
-\| reciever-buck002 \| \|
-
-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--+ \|
-
-v
-
-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--+
-
-\| Lambda Function \|
-
-\| lang-translator \|
-
-+\-\-\-\-\-\-\--+\-\-\-\-\-\-\-\--+
-
-\|
-
-Uses AWS Translate \|
-
-v
-
-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--+
-
-\| S3 Output Bucket \|
-
-\| taker-buck001 \|
-
-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--+
-
-**Project Structure**
-
-translation-pipeline/
-
-│
-
-├── terraform/
-
-│ ├── main.tf \# All infrastructure defined here
-
-│ ├── providers.tf
-
-│
-
-├── lambda/
-
-│ ├── index.py \# Lambda function logic
-
-│ └── lambda_function.zip \# Zipped package for deployment
-
-│
-
-├── test/
-
-│ └── test_input.json \# Sample input file for testing
-
-│
-
-└── README.md \# Project documentation
-
-![](./media/media/image8.png){width="6.267716535433071in"
-height="6.902777777777778in"}
-
-Tools and resources
-
-  -----------------------------------------------------------------------
-  Component               Service/Tool            Purpose
-  ----------------------- ----------------------- -----------------------
-  Compute                 AWS Lambda              Serverless backend for
-                                                  translation
-
-  File Storage            Amazon s3               Input and Output
-                                                  buckets
-
-  IAM                     AWS IAM Roles/Policies  Secure access between
-                                                  services
-
-  Infrastructure          Terraform               IAC to deploy all
-                                                  resources
-
-  Monitoring              Cloudwatch              Lambda execution
-                                                  logging
-
-  Translation API         Amazon Translate        Actual Text translation
-  -----------------------------------------------------------------------
-
-### **IAM & Permissions**
-
-The Lambda function has an IAM role that allows:
-
-- translate: TranslateText
-
-- s3:GetObject, s3:ListBucket on input bucket
-
-- s3:PutObject on output bucket
-
-- logs:\* for writing to CloudWatch
-
-- 
-
-### **Event Trigger Flow**
-
-2.  A JSON file is uploaded to receiver-buck002.
-
-3.  An **S3 event notification** triggers the lang-translator Lambda.
-
-4.  Lambda reads the file and extracts translation fields.
-
-5.  Uses Amazon Translate to translate text.
-
-6.  Stores the result in taker-buck001.
-
-![](./media/media/image10.png){width="6.267716535433071in"
-height="2.6805555555555554in"}
-
-### **Sample Lambda Input Format**
-
-![](./media/media/image9.png){width="6.267716535433071in"
-height="3.0833333333333335in"}
-
-### **Sample Output File**
-
-![](./media/media/image5.png){width="6.270833333333333in"
-height="1.556233595800525in"}
-
-### **How to Deploy**
-
-1.  **Install Terraform**
-
-![](./media/media/image11.png){width="6.267716535433071in"
-height="6.486111111111111in"}
-
-terraform init
-
-Terraform plan
-
-4.  **Deploy to Lambda** via Terraform or manually.
-
-![](./media/media/image7.png){width="6.267716535433071in"
-height="4.819444444444445in"}
-
-zip lambda_function.zip [[index.py]{.underline}](http://index.py)
-
-![](./media/media/image3.png){width="6.267716535433071in"
-height="0.6527777777777778in"}
-
-5.  Check if resources have been created, eg, buckets
-
-> ![](./media/media/image4.png){width="6.267716535433071in"
-> height="1.2916666666666667in"}
-
-6.  **Upload test file**:\
-    aws s3 cp ../test/test_input.json s3://reciever-buck002/
-
-### 
-
-### **Monitoring**
-
-- Use CloudWatch Logs:
-
-> ![](./media/media/image1.png){width="6.270833333333333in"
-> height="1.8179779090113737in"}
+> **TRANSLATION PIPELINE -- AWS TERRAFORM DEPLOYMENT**
 >
-> ![](./media/media/image6.png){width="6.270833333333333in"
-> height="2.5468022747156605in"}
+> **This project automates the deployment of a serverless translation
+> pipeline on AWS using Terraform. It leverages:**
 
-### 
+- **Amazon S3 for storing input/output JSON files**
 
-### **Future Improvements**
+- **AWS Lambda (written in Python with Boto3) to process translation
+  jobs**
 
-- Add SNS notifications on successful translation
+- **Amazon Translate for automated language translation**
 
-- Add DynamoDB to store translation history
+- **S3 Event Notifications to trigger Lambda execution on file upload**
 
-- Add a front-end upload interface
+- **Lifecycle Policies to manage bucket storage efficiently**
 
-- Include language detection (if SourceLanguageCode is missing)
+> **Key Features**
 
-- Validate file content format before processing
+- **Fully Infrastructure-as-Code (IaC) using Terraform**
 
-Cleanup terraform destroy
+- **Lambda packaged as lambda_function.zip**
 
-![](./media/media/image2.png){width="6.770833333333333in"
-height="3.003549868766404in"}
+- **IAM roles and policies for secure service access**
 
-### **IAM Masters**
+- **Auto-triggered processing from S3 input bucket**
 
-**Nathaniel Sackey**
+- **Translated output written back to a separate S3 bucket**
 
-**Chrysolite Yeboah**
+1.  **Terraform Apply -- Translation Pipeline**
 
-**Emmanuel Osei**
+This screenshot shows a successful terraform apply execution for the
+translation_pipeline project.
 
-**Kelvin NeeQuaye**
+**Resources Created**
 
-**Eric Datsa**
+- **IAM**: lambda_policy: Custom IAM policy for Lambda execution,
+  translator role and policy attachment
 
-**Mariam Zakiyu**
+- **Lambda**: translate Lambda function deployed from
+  lambda_function.zip, Permission added to allow S3 to invoke the
+  function.
 
-GitHub: [[Github
-repo]{.underline}](https://github.com/bignate8735/transalation_pipeline)
+- **S3**: Two buckets: bucket025-input and bucket00-output, Lifecycle
+  rules created for both buckets, Notification configured to trigger
+  Lambda on object creation.
+
+<!-- -->
+
+- Total resources deployed: **10 resources added**, **0 changed**, **0
+  destroyed**, Lifecycle rule creation took \~59 seconds, Clean deploy
+  with no errors.
+
+![](./media/media/image1.png){width="6.5in"
+height="3.2381944444444444in"}
+
+2.  JSON Input File for Amazon Translate
+
+> **Overview**:\
+> The screenshot shows a test_input.json file open in VS Code under the
+> project *AUTO SCALING FORCE*. The file defines structured inputs for a
+> translation task, including source and target languages and the text
+> to be translated. The file is designed for use with **Amazon Translate
+> and lambda**, supporting automated and event-driven translation
+> workflows.
+>
+> ![](./media/media/image2.png){width="6.5in" height="2.35in"}
+
+3.  AWS Lambda Function -- *asg-translator*\
+    This screenshot shows the **AWS Lambda console** for the function
+    named asg-translator. The function appears connected to an **S3
+    trigger**, indicating it's event-driven, processing files uploaded
+    to an S3 bucket.
+
+![](./media/media/image3.png){width="6.5in"
+height="3.1333333333333333in"}
+
+4.  S3 Upload Confirmation for test_input.json\
+    This screenshot captures the **successful upload** of
+    test_input.json to the S3 bucket asg-bucket205-input via the AWS
+    Management Console. The file is recognized as a JSON object
+    (application/json, 272.0 B) with a status of "Succeeded," confirming
+    proper ingestion.
+
+![](./media/media/image4.png){width="6.5in"
+height="2.8027777777777776in"}
+
+5.  Output JSON from Amazon Translate via Lambda.\
+    This JSON output shows translated results generated by a Lambda
+    function integrating with **Amazon Translate**. Each entry logs the
+    original English text, its translated counterpart, and the language
+    pair used.
+
+![](./media/media/image5.png){width="6.5in" height="0.65625in"}
+
+6.  Terraform Destroy Execution for AWS Translation.
+
+This image captures the terminal output from running terraform destroy
+within a VS Code workspace titled translation_pipeline. The command
+initiates teardown of AWS infrastructure managed by Terraform. The plan
+includes destroying the IAM policy, lambda_policy, confirming
+Terraform's role in gracefully deprovisioning resources at the end of
+the pipeline lifecycle.![](./media/media/image6.png){width="6.5in"
+height="3.14375in"}
+
+AUTOSCALING GROUP MEMBERS:
+
+Mary Mensah
+
+Richard Acquah
+
+Frimpong Osei
+
+Precious Mmiba Tidogo
+
+Robert Nyavor
+
+Jeffrey Kwaku Osafo
